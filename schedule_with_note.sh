@@ -7,11 +7,14 @@ MINUTES=${1:-3}
 NOTE=${2:-"Standard check-in"}
 TARGET=${3:-"tmux-orc:0"}
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Create a note file for the next check
-echo "=== Next Check Note ($(date)) ===" > /Users/zippq/aiDev/claudetest/next_check_note.txt
-echo "Scheduled for: $MINUTES minutes" >> /Users/zippq/aiDev/claudetest/next_check_note.txt
-echo "" >> /Users/zippq/aiDev/claudetest/next_check_note.txt
-echo "$NOTE" >> /Users/zippq/aiDev/claudetest/next_check_note.txt
+echo "=== Next Check Note ($(date)) ===" > "$SCRIPT_DIR/next_check_note.txt"
+echo "Scheduled for: $MINUTES minutes" >> "$SCRIPT_DIR/next_check_note.txt"
+echo "" >> "$SCRIPT_DIR/next_check_note.txt"
+echo "$NOTE" >> "$SCRIPT_DIR/next_check_note.txt"
 
 echo "Scheduling check in $MINUTES minutes with note: $NOTE"
 
@@ -22,7 +25,7 @@ RUN_TIME=$(date -v +${MINUTES}M +"%H:%M:%S" 2>/dev/null || date -d "+${MINUTES} 
 # Use nohup to completely detach the sleep process
 # Use bc for floating point calculation
 SECONDS=$(echo "$MINUTES * 60" | bc)
-nohup bash -c "sleep $SECONDS && tmux send-keys -t $TARGET 'Time for orchestrator check! cat /Users/zippq/aiDev/claudetest/next_check_note.txt' && sleep 1 && tmux send-keys -t $TARGET Enter" > /dev/null 2>&1 &
+nohup bash -c "sleep $SECONDS && tmux send-keys -t $TARGET 'Time for orchestrator check! cat \"$SCRIPT_DIR/next_check_note.txt\"' && sleep 1 && tmux send-keys -t $TARGET Enter" > /dev/null 2>&1 &
 
 # Get the PID of the background process
 SCHEDULE_PID=$!
